@@ -3,10 +3,12 @@ require 'active_record'
 require 'sqlite3'
 require 'zip'
 require 'csv'
+require 'pry-byebug'
 
-database = File.new("db.db", "a")
+
+database = File.new("btc_db.db", "a")
 database.close
-db = SQLite3::Database.new("db.db")
+db = SQLite3::Database.new("btc_db.db")
 
 
 sql_command = <<-SQL
@@ -27,12 +29,16 @@ page = agent.get(url)
 links = page.links
 
 links.each do |link|
+  begin
   temp = link.text[/[^.]+/]
   market = temp[0...-3]
   currency = temp[-3..-1]
-
-  agent.get(link).save('tempfile.csv.gz')
-  temp = %x[ #{'gunzip -c tempfile.csv.gz'} ]
+  binding.pry
+  agent.get(link).save('tempfilebtc.csv.gz')
+  rescue
+  if File.file?('tempfilebtc.csv.gz')
+  temp = %x[ #{'gzip tempfilebtc.csv.gz'} ]
+  end
   sleep(25)
   CSV.parse(temp) do |row|
     sql_command = <<-SQL
@@ -53,5 +59,8 @@ links.each do |link|
      SQL
      db.execute(sql_command)
   end
-  File.delete('tempfile.csv.gz')
+  end
+  if File.file?('tempfilebtc.csv.gz')
+    File.delete('tempfilebtc.csv.gz')
+  end
 end
