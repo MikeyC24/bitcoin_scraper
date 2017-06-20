@@ -37,7 +37,7 @@ links.each do |link|
   agent.get(link).save('tempfilebtc.csv.gz')
   rescue
   if File.file?('tempfilebtc.csv.gz')
-  temp = %x[ #{'gzip tempfilebtc.csv.gz'} ]
+  temp = %x[ #{'gunzip -c tempfilebtc.csv.gz'} ]
   end
   sleep(25)
   CSV.parse(temp) do |row|
