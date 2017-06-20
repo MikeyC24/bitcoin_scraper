@@ -33,7 +33,7 @@ links.each do |link|
   temp = link.text[/[^.]+/]
   market = temp[0...-3]
   currency = temp[-3..-1]
-  binding.pry
+  #binding.pry
   agent.get(link).save('tempfilebtc.csv.gz')
   rescue
   if File.file?('tempfilebtc.csv.gz')
